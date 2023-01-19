@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private TextView result;
+    private JsonPlaceHolderApi jsonPlaceHolderApi;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,9 +27,17 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        JsonPlaceHolderApi jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
-        Call<List<Post>> call = jsonPlaceHolderApi.getPosts();
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
+//        getPosts();
+        getComments();
+
+
+    }
+
+
+    private void getPosts(){
+        Call<List<Post>> call = jsonPlaceHolderApi.getPosts();
         call.enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
@@ -37,16 +46,40 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 List<Post> posts = response.body();
-                String text = "";
+                StringBuilder text = new StringBuilder();
                 for(Post post:posts){
-                    text+="UserID : "+post.getUserId()+"\nId : "+post.getId()+"\nTitle : "+post.getTitle()+
-                            "\nBody : "+post.getText()+"\n\n";
+                    text.append("UserID : ").append(post.getUserId()).append("\nId : ").append(post.getId()).append("\nTitle : ").append(post.getTitle()).append("\nBody : ").append(post.getText()).append("\n\n");
                 }
-                result.setText(text);
+                result.setText(text.toString());
             }
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
+                result.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void getComments(){
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments();
+
+        call.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (!response.isSuccessful()){
+                    result.setText("code : "+response.code());
+                    return;
+                }
+                List<Comment> comments = response.body();
+                StringBuilder text = new StringBuilder();
+                for(Comment comment:comments){
+                    text.append("\nPostId : ").append(comment.getPostId()).append("\nName : ").append(comment.getName()).append("\nComment : ").append(comment.getText());
+                }
+                result.setText(text.toString());
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
                 result.setText(t.getMessage());
             }
         });
