@@ -2,6 +2,7 @@ package com.api.apitestapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -61,9 +62,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getComments(){
-        Call<List<Comment>> call = jsonPlaceHolderApi.getComments();
+        Call<List<Comment>> call = jsonPlaceHolderApi.getComments(4);
 
         call.enqueue(new Callback<List<Comment>>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
                 if (!response.isSuccessful()){
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 List<Comment> comments = response.body();
                 StringBuilder text = new StringBuilder();
                 for(Comment comment:comments){
-                    text.append("\nPostId : ").append(comment.getPostId()).append("\nName : ").append(comment.getName()).append("\nComment : ").append(comment.getText());
+                    text.append("\nPostId : ").append(comment.getPostId()).append("\nName : ").append(comment.getName()).append("\nComment : ").append(comment.getText()+"\n");
                 }
                 result.setText(text.toString());
             }
